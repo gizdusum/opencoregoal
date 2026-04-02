@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenCoreGoal Node server
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/opencoregoal
+EnvironmentFile=/home/ubuntu/opencoregoal/.env
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
