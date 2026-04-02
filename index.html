@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenCoreGoal | Goal-Based Auto Wallet</title>
+  <meta
+    name="description"
+    content="OpenCoreGoal turns plain-English saving goals into safe wallet actions using Open Wallet Standard guardrails."
+  />
+  <meta property="og:title" content="OpenCoreGoal" />
+  <meta property="og:description" content="A simple goal-based auto wallet demo for the OpenWallet hackathon." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="OpenCoreGoal home">
+        <span class="brand-mark">
+          <span class="ows-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </span>
+        </span>
+        <span class="brand-copy">
+          <strong><span class="brand-open">Open</span><span class="brand-core">Core</span><span class="brand-goal">Goal</span></strong>
+          <span>Goal-based auto wallet</span>
+        </span>
+      </a>
+
+      <div class="topbar-copy">
+        <button class="wallet-connect" id="walletConnectButton" type="button">Connect wallet</button>
+        <span class="wallet-badge" id="walletBadge" hidden>Wallet not connected</span>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">Dark</button>
+        <span class="status-dot"></span>
+        <span>OpenWallet hackathon MVP</span>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero panel">
+        <div class="hero-copy">
+          <p class="eyebrow">Simple enough for normal users</p>
+          <h1>
+            <span>Set the goal.</span>
+            <span>Onchain.</span>
+            <span class="hero-accent">Automatically.</span>
+          </h1>
+          <p class="hero-text">Capture profits. Move a small piece into stable savings.</p>
+          <p class="hero-kicker">What you see on the screen is not yours until you protect a piece of it.</p>
+
+          <form class="quick-start" id="goalForm">
+            <label class="command-label">
+              <span class="card-label">Start your goal</span>
+              <textarea id="goalPrompt" name="goalPrompt" rows="3" placeholder="Whenever my wallet is in profit, move a small share into a USDC goal vault and keep my monthly savings under budget."></textarea>
+            </label>
+
+            <div class="agent-fill" id="agentFill">
+              <span class="agent-fill-label">Agent read:</span>
+              <span id="agentFillText">Waiting for your prompt.</span>
+            </div>
+
+            <div class="quick-grid">
+              <label>
+                Savings asset
+                <select id="asset" name="asset">
+                  <option selected>USDC</option>
+                  <option>USDT</option>
+                  <option>DAI</option>
+                </select>
+              </label>
+
+              <label>
+                Savings per sweep
+                <input id="amount" name="amount" type="number" min="10" step="10" value="50" required />
+              </label>
+
+              <label>
+                Schedule
+                <select id="cadence" name="cadence">
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </label>
+
+              <label>
+                Time horizon
+                <select id="duration" name="duration">
+                  <option value="3">3 months</option>
+                  <option value="6">6 months</option>
+                  <option value="12" selected>12 months</option>
+                  <option value="24">24 months</option>
+                </select>
+              </label>
+
+              <label>
+                Profit sweep
+                <select id="profitShare" name="profitShare">
+                  <option value="5">5%</option>
+                  <option value="10" selected>10%</option>
+                  <option value="15">15%</option>
+                  <option value="20">20%</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="profit-toggle inline-toggle">
+              <input id="profitMode" name="profitMode" type="checkbox" checked />
+              <span class="toggle-ui"></span>
+              <span class="toggle-copy">
+                <strong>Fund this vault from profit</strong>
+                <small>Redirect a small share of positive wallet activity into stable savings.</small>
+              </span>
+            </label>
+
+            <div class="hero-actions">
+              <button class="primary-button" type="submit">Start saving plan</button>
+              <button class="secondary-button" id="onchainDemoButton" type="button">Run onchain demo</button>
+            </div>
+          </form>
+
+          <div class="confirmation-card" id="confirmationCard" hidden>
+            <span class="card-label">Plan armed</span>
+            <strong id="confirmationTitle">Your saving plan is ready.</strong>
+            <p id="confirmationText">The wallet will wait for your approval and stay inside your rules.</p>
+          </div>
+
+          <div class="policy-banner">
+            <div class="policy-lock" aria-hidden="true">
+              <span></span>
+            </div>
+            <div class="policy-copy">
+              <span class="card-label">Safe by policy</span>
+              <strong>Private key stays local.</strong>
+            </div>
+          </div>
+        </div>
+
+        <aside class="journey-card inset-panel">
+          <div class="journey-head">
+            <div class="journey-title">
+              <span class="eyebrow small">Goal journey</span>
+              <h2>$1,200 USDC vault target</h2>
+            </div>
+            <span class="journey-pill" id="journeyPill">On track</span>
+          </div>
+
+          <div class="growth-journey">
+            <div class="growth-track"></div>
+            <div class="growth-progress" id="railProgress"></div>
+
+            <div class="growth-stage stage-one" id="stageSeed">
+              <div class="stage-icon seed">
+                <span class="stage-glow"></span>
+              </div>
+              <span class="stop-title">Weekly</span>
+              <strong>Seed</strong>
+            </div>
+
+            <div class="growth-stage stage-two" id="stageSprout">
+              <div class="stage-icon sprout">
+                <span class="stage-glow"></span>
+              </div>
+              <span class="stop-title">Monthly</span>
+              <strong>Sprout</strong>
+            </div>
+
+            <div class="growth-stage stage-three" id="stageBloom">
+              <div class="stage-icon bloom">
+                <span class="stage-glow"></span>
+              </div>
+              <span class="stop-title">Yearly</span>
+              <strong>Bloom</strong>
+            </div>
+          </div>
+
+          <div class="journey-metrics compact-metrics">
+            <article>
+              <span class="metric-label">Vault sweep</span>
+              <strong id="heroContribution">$50 weekly</strong>
+            </article>
+            <article>
+              <span class="metric-label">Safety mode</span>
+              <strong id="heroSafety">Strict cap</strong>
+            </article>
+            <article>
+              <span class="metric-label">Vault route</span>
+              <strong>Goal Vault</strong>
+            </article>
+            <article>
+              <span class="metric-label">Profit sweep</span>
+              <strong id="heroProfit">10% of gains</strong>
+            </article>
+          </div>
+
+          <div class="ows-live-card">
+            <span class="card-label">Live OWS setup</span>
+            <div class="ows-live-grid">
+              <div>
+                <span class="metric-label">Source</span>
+                <code id="traderWalletName">opencoregoal-trader</code>
+              </div>
+              <div>
+                <span class="metric-label">Wallet</span>
+                <code id="vaultWalletName">opencoregoal-vault</code>
+              </div>
+              <div>
+                <span class="metric-label">Address</span>
+                <code id="vaultAddress">0x1b014c...D548</code>
+              </div>
+              <div>
+                <span class="metric-label">Policy</span>
+                <code id="vaultPolicy">Profit Vault Guard</code>
+              </div>
+              <div>
+                <span class="metric-label">Agent key</span>
+                <code id="vaultKeyName">opencoregoal-agent-guarded</code>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="content-grid">
+        <section class="planner panel" id="planner">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Why it works</p>
+              <h2>Save from upside. Keep it separate.</h2>
+            </div>
+            <p class="section-note">Small wins move into a dedicated vault.</p>
+          </div>
+          <div class="value-stack">
+            <article class="value-card">
+              <span class="card-label">One screen</span>
+              <strong>Start fast</strong>
+              <p>Set the rule and begin from the first view.</p>
+            </article>
+            <article class="value-card">
+              <span class="card-label">Profit sweep</span>
+              <strong>Save from wins</strong>
+              <p>A small share of gains moves into stable savings.</p>
+            </article>
+            <article class="value-card">
+              <span class="card-label">Savings wallet</span>
+              <strong>Keep it protected</strong>
+              <p>The saved USDC lives in a separate goal vault, not in the trading balance.</p>
+            </article>
+          </div>
+        </section>
+
+        <aside class="panel plan-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Plan</p>
+              <h2>Your safe execution plan</h2>
+            </div>
+            <p class="section-note">Readable and simple.</p>
+          </div>
+
+          <div class="summary-card" id="summaryCard">
+            <span class="summary-label">Summary</span>
+            <h3 id="summaryHeadline">Build a steady USDC safety vault over 12 months.</h3>
+            <p id="summaryText">Small stable savings requests move into a dedicated goal vault.</p>
+          </div>
+
+          <div class="plan-stack">
+            <article class="plan-card">
+              <span class="card-label">Plan</span>
+              <strong id="planSentence">Move $50 into a USDC goal vault every week for 12 months.</strong>
+            </article>
+
+            <article class="plan-card">
+              <span class="card-label">Policy</span>
+              <ul class="policy-list" id="policyList">
+                <li>Only allow stablecoin savings sweeps.</li>
+                <li>Never exceed $250 in a month.</li>
+                <li>Block execution above 1.0% slippage.</li>
+              </ul>
+            </article>
+
+            <article class="plan-card pnl-card">
+              <span class="card-label">Profit sweep</span>
+              <strong id="profitSentence">Redirect 10% of positive PNL into this goal vault.</strong>
+              <p id="profitText">Save from wins without forcing a full sale.</p>
+            </article>
+
+            <article class="plan-card" id="requestCard">
+              <span class="card-label">Live OWS request</span>
+              <strong id="requestHeadline">Waiting to create a signed request.</strong>
+              <p id="requestBody">Press Start saving plan to generate a policy-checked OWS request.</p>
+            </article>
+
+            <article class="plan-card" id="onchainCard">
+              <span class="card-label">Onchain demo</span>
+              <strong id="onchainHeadline">No live transfer yet.</strong>
+              <p id="onchainBody">The demo transfer will try to move funds from the trader wallet into the goal vault.</p>
+            </article>
+          </div>
+        </aside>
+      </section>
+
+      <footer class="footer-bar">
+        <a class="footer-link" href="https://x.com/gizdusumandnode" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18.9 2H22l-6.77 7.73L23 22h-6.1l-4.78-6.27L6.63 22H3.5l7.23-8.27L1 2h6.25l4.32 5.7L18.9 2Z"></path>
+          </svg>
+          <span>@gizdusumandnode</span>
+        </a>
+        <a class="footer-link" href="https://github.com/gizdusum" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.66.5 12.03c0 5.1 3.3 9.44 7.88 10.96.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.72.08-.71.08-.71 1.15.08 1.75 1.18 1.75 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.56-.29-5.25-1.29-5.25-5.73 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a10.93 10.93 0 0 1 5.76 0c2.2-1.5 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.73.81 1.18 1.84 1.18 3.1 0 4.45-2.7 5.43-5.28 5.72.42.37.79 1.09.79 2.21 0 1.6-.02 2.88-.02 3.27 0 .31.21.68.8.56A11.53 11.53 0 0 0 23.5 12.03C23.5 5.66 18.35.5 12 .5Z"></path>
+          </svg>
+          <span>@gizdusum</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
