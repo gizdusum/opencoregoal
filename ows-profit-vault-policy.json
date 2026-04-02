@@ -1,0 +1,25 @@
+{
+  "id": "opencoregoal-profit-vault-guard",
+  "version": 1,
+  "created_at": "2026-04-03T00:00:00Z",
+  "name": "OpenCoreGoal Profit Vault Guard",
+  "rules": [
+    {
+      "type": "allowed_chains",
+      "chain_ids": ["eip155:1"]
+    },
+    {
+      "type": "expires_at",
+      "timestamp": "2026-12-31T23:59:59Z"
+    }
+  ],
+  "executable": "/Users/denizalagoz/Documents/New project/openwallet-goal/ows-profit-vault-policy.js",
+  "action": "deny",
+  "config": {
+    "stableAsset": "USDC",
+    "maxMonthlyUsd": 250,
+    "profitSharePct": 10,
+    "destination": "goal-vault",
+    "allowedChains": ["eip155:1", "eip155:84532"]
+  }
+}
