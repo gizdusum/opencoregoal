@@ -16,12 +16,12 @@ const ETH_CHAIN_ALIAS = 'ethereum';
 
 const wallets = {
   trader: {
-    name: 'opencoregoal-trader',
-    address: '0x2fB7002cFBc38be9F1263628d7dA7D21674b8b47'
+    name: process.env.OPENCOREGOAL_TRADER_WALLET || 'opencoregoal-trader',
+    address: process.env.OPENCOREGOAL_TRADER_ADDRESS || '0x2fB7002cFBc38be9F1263628d7dA7D21674b8b47'
   },
   vault: {
-    name: 'opencoregoal-vault',
-    address: '0x1b014cc5327806f2D470012B7F4370Ddba9cD548'
+    name: process.env.OPENCOREGOAL_VAULT_WALLET || 'opencoregoal-vault',
+    address: process.env.OPENCOREGOAL_VAULT_ADDRESS || '0x1b014cc5327806f2D470012B7F4370Ddba9cD548'
   }
 };
 
