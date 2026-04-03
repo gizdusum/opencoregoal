@@ -374,6 +374,28 @@
     </main>
   </div>
 
-  <script src="./app.js"></script>
+  <div class="wallet-modal" id="walletModal" hidden>
+    <div class="wallet-modal-backdrop" id="walletModalBackdrop"></div>
+    <div class="wallet-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
+      <div class="wallet-modal-head">
+        <div>
+          <span class="card-label">Wallet picker</span>
+          <h3 id="walletModalTitle">Choose a wallet</h3>
+        </div>
+        <button class="wallet-modal-close" id="walletModalClose" type="button" aria-label="Close wallet picker">×</button>
+      </div>
+      <p class="wallet-modal-copy">Pick a wallet to connect, or switch to a different one after disconnecting.</p>
+      <div class="wallet-modal-list" id="walletModalList"></div>
+      <button class="wallet-modal-option walletconnect-option" id="walletConnectQrButton" type="button">
+        <span class="wallet-option-mark">WC</span>
+        <span class="wallet-option-copy">
+          <strong>WalletConnect</strong>
+          <small>Connect with QR code or mobile wallet</small>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
