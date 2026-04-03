@@ -11,6 +11,8 @@ OpenCoreGoal is a goal-based auto wallet demo built for the OpenWallet / OWS hac
 It helps normal users turn a simple savings intention into a protected onchain flow:
 
 - set a savings goal in plain English
+- analyze wallet behavior with a Profit Protection Score
+- get a recommended treatment plan
 - keep the private key out of the agent flow
 - approve a policy-checked OWS request
 - move a small part of upside into a separate USDC goal vault
@@ -80,9 +82,11 @@ The demo uses two wallet roles:
 The app currently demonstrates:
 
 1. user sets a goal
-2. policy is evaluated
-3. OWS signs a live request
-4. the onchain demo can send a Base Sepolia transaction into the goal vault
+2. wallet behavior can be analyzed into a Profit Protection Score
+3. a treatment plan can be recommended
+4. policy is evaluated
+5. OWS signs a live request
+6. the onchain demo can send a Base Sepolia transaction into the goal vault
 
 ## Local development
 
@@ -173,3 +177,5 @@ It focuses on:
 Ready-to-paste hackathon copy lives in:
 
 - `SUBMISSION.md`
+- `SOCIAL.md`
+- `VIDEO.md`
