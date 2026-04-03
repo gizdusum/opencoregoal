@@ -139,6 +139,20 @@ function currentPayload() {
   };
 }
 
+function buildApprovalMessage() {
+  const networkLabel = NETWORKS[state.selectedChainId]?.label || 'Base Sepolia';
+  return [
+    'OpenCoreGoal plan approval',
+    `Wallet: ${state.connectedWallet || 'not connected'}`,
+    `Network: ${networkLabel}`,
+    `Asset: ${state.asset}`,
+    `Sweep: ${formatMoney(state.amount)} ${state.cadence}`,
+    `Duration: ${state.duration} months`,
+    `Profit sweep: ${state.profitMode ? `${state.profitShare}%` : 'disabled'}`,
+    `Prompt: ${state.goalPrompt}`
+  ].join('\n');
+}
+
 function updateRail() {
   const progress = cadenceMap[state.cadence].progress + Math.min(state.duration, 24);
   els.railProgress.style.setProperty('--progress', `${Math.min(progress, 94)}%`);
@@ -374,8 +388,32 @@ function bindWalletEvents() {
 }
 
 async function createLiveRequest() {
+  if (!state.connectedWallet) {
+    const message = 'Connect your wallet first to approve this savings plan.';
+    els.requestHeadline.textContent = 'Wallet approval needed.';
+    els.requestBody.textContent = message;
+    showConfirmation('Connect your wallet first.', message);
+    return;
+  }
+
+  els.requestHeadline.textContent = 'Waiting for wallet approval...';
+  els.requestBody.textContent = 'Please sign the plan approval message in your wallet.';
+
+  try {
+    await window.ethereum.request({
+      method: 'personal_sign',
+      params: [buildApprovalMessage(), state.connectedWallet]
+    });
+  } catch (error) {
+    const message = error?.code === 4001 ? 'Wallet signature was rejected.' : (error.message || 'Wallet approval failed.');
+    els.requestHeadline.textContent = 'Wallet approval was not completed.';
+    els.requestBody.textContent = message;
+    showConfirmation('Plan approval cancelled.', message);
+    return;
+  }
+
   els.requestHeadline.textContent = 'Creating live OWS request...';
-  els.requestBody.textContent = 'Checking policy and asking OWS to sign the plan.';
+  els.requestBody.textContent = 'Wallet approved. Checking policy and asking OWS to sign the plan.';
 
   const response = await fetch('/api/ows/request', {
     method: 'POST',
@@ -395,8 +433,8 @@ async function createLiveRequest() {
   const signature = data.request.signature;
   const shortSignature = `${signature.slice(0, 14)}...${signature.slice(-8)}`;
   els.requestHeadline.textContent = 'Signed request created.';
-  els.requestBody.textContent = `OWS signed the live request after policy approval. Signature: ${shortSignature}`;
-  showConfirmation('Live OWS request ready.', data.policy.reason);
+  els.requestBody.textContent = `Wallet approved and OWS signed the live request. Signature: ${shortSignature}`;
+  showConfirmation('Live OWS request ready.', `Your wallet approved the plan and ${data.policy.reason.toLowerCase()}`);
 }
 
 async function runOnchainDemo() {
