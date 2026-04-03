@@ -60,6 +60,15 @@ const els = {
   policyList: document.getElementById('policyList'),
   profitSentence: document.getElementById('profitSentence'),
   profitText: document.getElementById('profitText'),
+  analyzeWalletButton: document.getElementById('analyzeWalletButton'),
+  scoreValue: document.getElementById('scoreValue'),
+  scoreStatus: document.getElementById('scoreStatus'),
+  diagnosisSummary: document.getElementById('diagnosisSummary'),
+  diagnosisPattern: document.getElementById('diagnosisPattern'),
+  diagnosisChains: document.getElementById('diagnosisChains'),
+  recommendedSweep: document.getElementById('recommendedSweep'),
+  recommendedCap: document.getElementById('recommendedCap'),
+  diagnosisTreatment: document.getElementById('diagnosisTreatment'),
   railProgress: document.getElementById('railProgress'),
   heroContribution: document.getElementById('heroContribution'),
   heroSafety: document.getElementById('heroSafety'),
@@ -78,6 +87,7 @@ const els = {
 const THEME_KEY = 'opencoregoal-theme';
 const BASE_SEPOLIA_HEX = '0x14a34';
 let toastTimer = null;
+let diagnosisInFlight = false;
 const NETWORKS = {
   '0x14a34': {
     label: 'Base Sepolia',
@@ -222,6 +232,38 @@ function showSuccessToast(title, body) {
     els.successToast.hidden = true;
     els.successToast.classList.remove('show');
   }, 3200);
+}
+
+function resetDiagnosis() {
+  els.scoreValue.textContent = '--/100';
+  els.scoreStatus.textContent = 'Connect wallet';
+  els.scoreStatus.className = 'diagnosis-pill';
+  els.diagnosisSummary.textContent =
+    'Connect a wallet to analyze your onchain behavior and estimate how well you protect gains.';
+  els.diagnosisPattern.textContent = 'Not analyzed';
+  els.diagnosisChains.textContent = '--';
+  els.recommendedSweep.textContent = '--';
+  els.recommendedCap.textContent = '--';
+  els.diagnosisTreatment.textContent = 'A treatment plan will appear here after wallet analysis.';
+  els.analyzeWalletButton.textContent = 'Analyze wallet';
+}
+
+function renderDiagnosis(data) {
+  const diagnosis = data?.diagnosis || {};
+  const recommendation = data?.recommendation || {};
+  els.scoreValue.textContent = `${diagnosis.score ?? '--'}/100`;
+  els.scoreStatus.textContent = diagnosis.status || 'Unknown';
+  els.scoreStatus.className = `diagnosis-pill ${String(diagnosis.status || '').toLowerCase()}`;
+  els.diagnosisSummary.textContent =
+    diagnosis.summary || 'Wallet behavior analyzed. A protection suggestion is ready.';
+  els.diagnosisPattern.textContent = diagnosis.pattern || 'Mixed';
+  els.diagnosisChains.textContent = String(diagnosis.activeChains ?? '--');
+  els.recommendedSweep.textContent =
+    recommendation.profitSweepPct !== undefined ? `${recommendation.profitSweepPct}% of gains` : '--';
+  els.recommendedCap.textContent =
+    recommendation.monthlyCapUsd !== undefined ? formatMoney(recommendation.monthlyCapUsd) : '--';
+  els.diagnosisTreatment.textContent =
+    recommendation.treatment || 'No treatment guidance available yet.';
 }
 
 function parsePrompt(prompt) {
@@ -389,6 +431,7 @@ async function connectWallet() {
 
   if (state.connectedWallet) {
     showConfirmation('Wallet connected.', `Connected ${shortenAddress(state.connectedWallet)} for the user-facing flow. OWS vault execution remains protected in the background.`);
+    await analyzeWalletBehavior(true);
   }
 }
 
@@ -455,6 +498,52 @@ async function createLiveRequest() {
   els.requestBody.textContent = `Wallet approved and OWS signed the live request. Signature: ${shortSignature}`;
   showConfirmation('Live OWS request ready.', `Your wallet approved the plan and ${data.policy.reason.toLowerCase()}`);
   showSuccessToast('Plan approved', 'Success. Keep building your onchain savings one step at a time.');
+}
+
+async function analyzeWalletBehavior(auto = false) {
+  if (!state.connectedWallet) {
+    resetDiagnosis();
+    const message = 'Connect your wallet first to analyze your protection behavior.';
+    if (!auto) showConfirmation('Wallet required.', message);
+    return;
+  }
+
+  if (diagnosisInFlight) return;
+  diagnosisInFlight = true;
+  els.analyzeWalletButton.textContent = 'Analyzing...';
+  els.diagnosisSummary.textContent = 'Reading wallet activity across supported chains and building a protection profile.';
+
+  try {
+    const response = await fetch('/api/wallet-diagnosis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address: state.connectedWallet })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || 'Wallet analysis failed.');
+    }
+
+    renderDiagnosis(data);
+    if (!auto) {
+      showConfirmation(
+        `Profit Protection Score: ${data.diagnosis.score}/100.`,
+        data.recommendation.treatment
+      );
+    }
+  } catch (error) {
+    els.scoreValue.textContent = '--/100';
+    els.scoreStatus.textContent = 'Unavailable';
+    els.scoreStatus.className = 'diagnosis-pill unavailable';
+    els.diagnosisSummary.textContent = error.message;
+    els.diagnosisTreatment.textContent = 'Try again after reconnecting the wallet or checking wallet activity.';
+    if (!auto) showConfirmation('Wallet analysis failed.', error.message);
+  } finally {
+    diagnosisInFlight = false;
+    els.analyzeWalletButton.textContent = 'Analyze wallet';
+  }
 }
 
 async function runOnchainDemo() {
@@ -552,7 +641,12 @@ els.walletDisconnectButton.addEventListener('click', () => {
   state.connectedWallet = null;
   state.connectedChainId = null;
   renderWalletBadge();
+  resetDiagnosis();
   showConfirmation('Wallet disconnected.', 'The UI wallet connection has been cleared from this session.');
+});
+
+els.analyzeWalletButton.addEventListener('click', async () => {
+  await analyzeWalletBehavior(false);
 });
 
 els.networkSelect.addEventListener('change', async () => {
@@ -577,5 +671,6 @@ els.themeToggle.addEventListener('click', () => {
 
 loadTheme();
 render();
+resetDiagnosis();
 loadOwsStatus();
 bindWalletEvents();
