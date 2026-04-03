@@ -175,18 +175,26 @@ body.theme-dark .topbar {
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 176px;
-  height: 124px;
-  flex: 0 0 176px;
+  width: 228px;
+  height: 160px;
+  flex: 0 0 228px;
   overflow: visible;
 }
 
 .brand-logo-image {
-  width: 176px;
-  height: 124px;
+  width: 228px;
+  height: 160px;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 16px 26px rgba(46, 36, 21, 0.12));
+  opacity: 0;
+  transition: opacity 160ms ease;
+  filter:
+    drop-shadow(0 20px 34px rgba(46, 36, 21, 0.12))
+    drop-shadow(0 8px 18px rgba(255, 191, 98, 0.14));
+}
+
+.brand-logo-image.is-ready {
+  opacity: 1;
 }
 
 .brand-copy {
@@ -235,7 +243,7 @@ body.theme-dark .topbar {
 
 .topbar-main {
   display: grid;
-  grid-template-columns: minmax(390px, 1fr) auto;
+  grid-template-columns: minmax(450px, 1fr) auto;
   align-items: center;
   gap: 18px;
 }
@@ -1658,14 +1666,14 @@ body.theme-dark .footer-link {
   }
 
   .brand-mark {
-    width: 116px;
-    height: 82px;
-    flex-basis: 116px;
+    width: 148px;
+    height: 104px;
+    flex-basis: 148px;
   }
 
   .brand-logo-image {
-    width: 116px;
-    height: 82px;
+    width: 148px;
+    height: 104px;
   }
 
   .topbar-status,
