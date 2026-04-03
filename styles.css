@@ -1292,6 +1292,24 @@ body.theme-dark .pnl-card {
   line-height: 1.7;
 }
 
+.plan-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--teal-700);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.plan-link:hover {
+  text-decoration: underline;
+}
+
+body.theme-dark .plan-link {
+  color: var(--teal-300);
+}
+
 .reason-grid {
   display: flex;
   flex-wrap: wrap;

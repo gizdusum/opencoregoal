@@ -2,6 +2,12 @@
 
 OpenCoreGoal is a goal-based auto wallet demo built for the OpenWallet / OWS hackathon.
 
+## Live links
+
+- Public app: [openwallet-goal.vercel.app](https://openwallet-goal.vercel.app)
+- Live backend demo: [187.124.91.33:8787](http://187.124.91.33:8787/)
+- Repository: [gizdusum/opencoregoal](https://github.com/gizdusum/opencoregoal)
+
 It helps normal users turn a simple savings intention into a protected onchain flow:
 
 - set a savings goal in plain English
@@ -162,8 +168,8 @@ It focuses on:
 - policy-gated wallet actions
 - stable savings behavior instead of speculative trading UX
 
-## Repository
+## Submission helper
 
-GitHub:
+Ready-to-paste hackathon copy lives in:
 
-- [gizdusum/opencoregoal](https://github.com/gizdusum/opencoregoal)
+- `SUBMISSION.md`
