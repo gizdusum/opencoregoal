@@ -1,3 +1,5 @@
+import EthereumProvider from 'https://esm.sh/@walletconnect/ethereum-provider@2.21.1';
+
 const state = {
   goalName: 'Build a calm USDC safety vault over 12 months',
   asset: 'USDC',
@@ -10,7 +12,10 @@ const state = {
   profitShare: 10,
   connectedWallet: null,
   connectedChainId: null,
-  selectedChainId: '0x14a34'
+  selectedChainId: '0x14a34',
+  currentProvider: null,
+  currentProviderType: null,
+  currentProviderName: null
 };
 
 const defaultSetup = {
@@ -35,6 +40,11 @@ const els = {
   walletConnectButton: document.getElementById('walletConnectButton'),
   walletDisconnectButton: document.getElementById('walletDisconnectButton'),
   walletBadge: document.getElementById('walletBadge'),
+  walletModal: document.getElementById('walletModal'),
+  walletModalBackdrop: document.getElementById('walletModalBackdrop'),
+  walletModalClose: document.getElementById('walletModalClose'),
+  walletModalList: document.getElementById('walletModalList'),
+  walletConnectQrButton: document.getElementById('walletConnectQrButton'),
   brandLogoImage: document.getElementById('brandLogoImage'),
   asset: document.getElementById('asset'),
   amount: document.getElementById('amount'),
@@ -88,8 +98,12 @@ const els = {
 
 const THEME_KEY = 'opencoregoal-theme';
 const BASE_SEPOLIA_HEX = '0x14a34';
+const REOWN_PROJECT_ID = '2c7675603bcfd9904aa52c32e6ce9a34';
 let toastTimer = null;
 let diagnosisInFlight = false;
+let walletConnectProvider = null;
+let activeProviderCleanup = null;
+const discoveredWallets = new Map();
 const NETWORKS = {
   '0x14a34': {
     label: 'Base Sepolia',
@@ -119,6 +133,25 @@ function formatMoney(value) {
 
 function shortenAddress(address) {
   return `${address.slice(0, 8)}...${address.slice(-4)}`;
+}
+
+function getActiveProvider() {
+  return state.currentProvider || null;
+}
+
+function providerSupports(provider, method) {
+  return Boolean(provider && typeof provider.request === 'function' && method);
+}
+
+function normalizeProviderName(name = 'Wallet') {
+  return name.replace(/\s+extension$/i, '').trim();
+}
+
+function walletMarkContent(wallet) {
+  if (wallet?.icon) {
+    return `<img src="${wallet.icon}" alt="${wallet.name} icon" />`;
+  }
+  return normalizeProviderName(wallet?.name || 'Wallet').slice(0, 2).toUpperCase();
 }
 
 function setCodeValue(element, label, fullValue = label) {
@@ -341,12 +374,12 @@ function renderWalletBadge() {
   els.walletDisconnectButton.hidden = false;
   const networkLabel = NETWORKS[state.connectedChainId]?.label || NETWORKS[state.selectedChainId]?.label || 'Wallet linked';
   els.walletBadge.textContent = shortenAddress(state.connectedWallet);
-  els.walletBadge.title = `${state.connectedWallet} on ${networkLabel}`;
-  els.walletConnectButton.textContent = 'Wallet connected';
+  els.walletBadge.title = `${state.connectedWallet} on ${networkLabel}${state.currentProviderName ? ` via ${state.currentProviderName}` : ''}`;
+  els.walletConnectButton.textContent = state.currentProviderName ? normalizeProviderName(state.currentProviderName) : 'Wallet connected';
   setCodeValue(
     els.traderWalletName,
     shortenAddress(state.connectedWallet),
-    `${state.connectedWallet} on ${networkLabel}`
+    `${state.connectedWallet} on ${networkLabel}${state.currentProviderName ? ` via ${state.currentProviderName}` : ''}`
   );
 }
 
@@ -360,6 +393,139 @@ function applyTheme(theme) {
 
 function loadTheme() {
   applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+}
+
+function openWalletModal() {
+  renderWalletOptions();
+  els.walletModal.hidden = false;
+}
+
+function closeWalletModal() {
+  els.walletModal.hidden = true;
+}
+
+function renderWalletOptions() {
+  const wallets = Array.from(discoveredWallets.values()).sort((a, b) =>
+    normalizeProviderName(a.info.name).localeCompare(normalizeProviderName(b.info.name))
+  );
+
+  if (!wallets.length) {
+    els.walletModalList.innerHTML = `
+      <div class="wallet-modal-option">
+        <span class="wallet-option-mark">--</span>
+        <span class="wallet-option-copy">
+          <strong>No injected wallet found</strong>
+          <small>Install MetaMask, Rabby, Phantom, or use WalletConnect below.</small>
+        </span>
+      </div>
+    `;
+    return;
+  }
+
+  els.walletModalList.innerHTML = wallets.map((wallet) => `
+    <button class="wallet-modal-option" type="button" data-wallet-id="${wallet.info.uuid}">
+      <span class="wallet-option-mark">${walletMarkContent({ icon: wallet.info.icon, name: wallet.info.name })}</span>
+      <span class="wallet-option-copy">
+        <strong>${normalizeProviderName(wallet.info.name)}</strong>
+        <small>Connect with the installed wallet</small>
+      </span>
+    </button>
+  `).join('');
+}
+
+function rememberInjectedWallet(providerDetail) {
+  if (!providerDetail?.info?.uuid || !providerDetail?.provider) return;
+  discoveredWallets.set(providerDetail.info.uuid, providerDetail);
+}
+
+function discoverInjectedWallets() {
+  if (typeof window === 'undefined') return;
+
+  window.addEventListener('eip6963:announceProvider', (event) => {
+    rememberInjectedWallet(event.detail);
+    renderWalletOptions();
+  });
+
+  window.dispatchEvent(new Event('eip6963:requestProvider'));
+
+  if (window.ethereum && discoveredWallets.size === 0) {
+    const providerList = Array.isArray(window.ethereum.providers) && window.ethereum.providers.length
+      ? window.ethereum.providers
+      : [window.ethereum];
+
+    providerList.forEach((provider, index) => {
+      rememberInjectedWallet({
+        info: {
+          uuid: `fallback-window-ethereum-${index}`,
+          name: provider.isRabby
+            ? 'Rabby'
+            : provider.isMetaMask
+              ? 'MetaMask'
+              : provider.isPhantom
+                ? 'Phantom'
+                : 'Browser Wallet',
+          icon: ''
+        },
+        provider
+      });
+    });
+  }
+}
+
+function attachProviderListeners(provider) {
+  if (!provider?.on) return;
+
+  if (activeProviderCleanup) activeProviderCleanup();
+
+  const accountsChanged = (accounts) => {
+    state.connectedWallet = accounts?.[0] || null;
+    renderWalletBadge();
+    if (!state.connectedWallet) resetDiagnosis();
+  };
+
+  const chainChanged = (chainId) => {
+    state.connectedChainId = chainId;
+    renderWalletBadge();
+  };
+
+  provider.on('accountsChanged', accountsChanged);
+  provider.on('chainChanged', chainChanged);
+
+  activeProviderCleanup = () => {
+    if (provider.removeListener) {
+      provider.removeListener('accountsChanged', accountsChanged);
+      provider.removeListener('chainChanged', chainChanged);
+    }
+    activeProviderCleanup = null;
+  };
+}
+
+async function getWalletConnectProvider() {
+  if (walletConnectProvider) return walletConnectProvider;
+
+  walletConnectProvider = await EthereumProvider.init({
+    projectId: REOWN_PROJECT_ID,
+    chains: [84532, 1],
+    optionalChains: [84532, 1],
+    showQrModal: true,
+    methods: [
+      'eth_requestAccounts',
+      'eth_accounts',
+      'personal_sign',
+      'wallet_switchEthereumChain',
+      'wallet_addEthereumChain',
+      'eth_chainId'
+    ],
+    events: ['accountsChanged', 'chainChanged', 'disconnect'],
+    metadata: {
+      name: 'OpenCoreGoal',
+      description: 'Goal-based auto wallet with OWS protection',
+      url: 'https://opencoregoal.vercel.app',
+      icons: ['https://opencoregoal.vercel.app/assets/opencoregoal-logo.png']
+    }
+  });
+
+  return walletConnectProvider;
 }
 
 function makeLogoTransparent() {
@@ -463,24 +629,24 @@ async function loadOwsStatus() {
   }
 }
 
-async function ensureBaseSepolia() {
-  if (!window.ethereum) return;
+async function ensureBaseSepolia(provider = getActiveProvider()) {
+  if (!providerSupports(provider, 'eth_chainId')) return;
 
-  const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+  const currentChainId = await provider.request({ method: 'eth_chainId' });
   state.connectedChainId = currentChainId;
   if (currentChainId === state.selectedChainId) return;
 
   const target = NETWORKS[state.selectedChainId];
 
   try {
-    await window.ethereum.request({
+    await provider.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: state.selectedChainId }]
     });
     state.connectedChainId = state.selectedChainId;
   } catch (error) {
     if (error.code === 4902) {
-      await window.ethereum.request({
+      await provider.request({
         method: 'wallet_addEthereumChain',
         params: [{
           chainId: state.selectedChainId,
@@ -497,35 +663,31 @@ async function ensureBaseSepolia() {
   }
 }
 
-async function connectWallet() {
-  if (!window.ethereum) {
-    showConfirmation('No wallet found.', 'Install a browser wallet like MetaMask to connect your own address.');
+async function connectWalletWithProvider(provider, providerName, providerType = 'injected') {
+  if (!providerSupports(provider, 'eth_requestAccounts')) {
+    showConfirmation('Wallet not available.', 'This wallet provider does not support the required account request flow.');
     return;
   }
 
-  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  const accounts = await provider.request({ method: 'eth_requestAccounts' });
   state.connectedWallet = accounts?.[0] || null;
-  await ensureBaseSepolia();
+  state.currentProvider = provider;
+  state.currentProviderName = providerName;
+  state.currentProviderType = providerType;
+  await ensureBaseSepolia(provider);
+  attachProviderListeners(provider);
   renderWalletBadge();
+  closeWalletModal();
 
   if (state.connectedWallet) {
-    showConfirmation('Wallet connected.', `Connected ${shortenAddress(state.connectedWallet)} for the user-facing flow. OWS vault execution remains protected in the background.`);
+    showConfirmation('Wallet connected.', `Connected ${shortenAddress(state.connectedWallet)} with ${normalizeProviderName(providerName)} for the user-facing flow. OWS vault execution remains protected in the background.`);
     await analyzeWalletBehavior(true);
   }
 }
 
-function bindWalletEvents() {
-  if (!window.ethereum?.on) return;
-
-  window.ethereum.on('accountsChanged', (accounts) => {
-    state.connectedWallet = accounts?.[0] || null;
-    renderWalletBadge();
-  });
-
-  window.ethereum.on('chainChanged', (chainId) => {
-    state.connectedChainId = chainId;
-    renderWalletBadge();
-  });
+async function connectWalletConnect() {
+  const provider = await getWalletConnectProvider();
+  await connectWalletWithProvider(provider, 'WalletConnect', 'walletconnect');
 }
 
 async function createLiveRequest() {
@@ -539,9 +701,14 @@ async function createLiveRequest() {
 
   els.requestHeadline.textContent = 'Waiting for wallet approval...';
   els.requestBody.textContent = 'Please sign the plan approval message in your wallet.';
+  const provider = getActiveProvider();
+  if (!provider) {
+    showConfirmation('Wallet provider missing.', 'Reconnect your wallet and try again.');
+    return;
+  }
 
   try {
-    await window.ethereum.request({
+    await provider.request({
       method: 'personal_sign',
       params: [buildApprovalMessage(), state.connectedWallet]
     });
@@ -708,20 +875,27 @@ els.onchainDemoButton.addEventListener('click', async () => {
   }
 });
 
-  els.walletConnectButton.addEventListener('click', async () => {
-  try {
-    await connectWallet();
-  } catch (error) {
-    showConfirmation('Wallet connection failed.', error.message);
-  }
+els.walletConnectButton.addEventListener('click', () => {
+  openWalletModal();
 });
 
-els.walletDisconnectButton.addEventListener('click', () => {
+els.walletDisconnectButton.addEventListener('click', async () => {
+  if (state.currentProviderType === 'walletconnect' && state.currentProvider?.disconnect) {
+    try {
+      await state.currentProvider.disconnect();
+    } catch (_error) {
+      // Ignore disconnect transport errors and still clear local state.
+    }
+  }
+  if (activeProviderCleanup) activeProviderCleanup();
+  state.currentProvider = null;
+  state.currentProviderType = null;
+  state.currentProviderName = null;
   state.connectedWallet = null;
   state.connectedChainId = null;
   renderWalletBadge();
   resetDiagnosis();
-  showConfirmation('Wallet disconnected.', 'The UI wallet connection has been cleared from this session.');
+  showConfirmation('Wallet disconnected.', 'You can now reconnect and choose a different wallet from the picker.');
 });
 
 els.analyzeWalletButton.addEventListener('click', async () => {
@@ -732,13 +906,34 @@ els.networkSelect.addEventListener('change', async () => {
   state.selectedChainId = els.networkSelect.value;
   renderWalletBadge();
 
-  if (state.connectedWallet && window.ethereum) {
+  if (state.connectedWallet && getActiveProvider()) {
     try {
-      await ensureBaseSepolia();
+      await ensureBaseSepolia(getActiveProvider());
       renderWalletBadge();
     } catch (error) {
       showConfirmation('Network switch failed.', error.message);
     }
+  }
+});
+
+els.walletModalBackdrop.addEventListener('click', closeWalletModal);
+els.walletModalClose.addEventListener('click', closeWalletModal);
+els.walletModalList.addEventListener('click', async (event) => {
+  const button = event.target.closest('[data-wallet-id]');
+  if (!button) return;
+  const wallet = discoveredWallets.get(button.dataset.walletId);
+  if (!wallet) return;
+  try {
+    await connectWalletWithProvider(wallet.provider, wallet.info.name, 'injected');
+  } catch (error) {
+    showConfirmation('Wallet connection failed.', error.message);
+  }
+});
+els.walletConnectQrButton.addEventListener('click', async () => {
+  try {
+    await connectWalletConnect();
+  } catch (error) {
+    showConfirmation('WalletConnect failed.', error.message);
   }
 });
 
@@ -753,4 +948,4 @@ makeLogoTransparent();
 render();
 resetDiagnosis();
 loadOwsStatus();
-bindWalletEvents();
+discoverInjectedWallets();
