@@ -33,12 +33,17 @@ function computeProtectionDiagnosis({ activeChains = [], netWorth = {}, pnlByCha
   const tradeBalance = totalBuys > 0 ? totalSells / totalBuys : 0;
   const activeChainCount = activeChains.length;
   const totalNetWorthUsd = Number(netWorth.total_networth_usd || 0);
+  const totalProfitPct = supportedPnlChains.reduce(
+    (sum, item) => sum + Number(item.data.total_realized_profit_percentage || 0),
+    0
+  );
   const chainSpreadScore = Math.min(activeChainCount * 6, 18);
-  const realizedProtectionScore = realizedProfitUsd > 0 ? 24 : 10;
+  const realizedProtectionScore = realizedProfitUsd > 0 ? 26 : totalNetWorthUsd > 250 ? 16 : 12;
   const profitableChainsScore = Math.min(positivePctCount * 8, 16);
   const sellDisciplineScore = Math.min(Math.round(tradeBalance * 20), 20);
   const volumeDisciplineScore = totalTrades <= 12 ? 18 : totalTrades <= 30 ? 12 : 6;
-  const treasuryScore = totalNetWorthUsd >= 1000 ? 12 : totalNetWorthUsd >= 250 ? 8 : 4;
+  const treasuryScore = totalNetWorthUsd >= 5000 ? 18 : totalNetWorthUsd >= 1500 ? 15 : totalNetWorthUsd >= 500 ? 12 : totalNetWorthUsd >= 250 ? 9 : 5;
+  const profitabilityLift = totalProfitPct > 0 ? 8 : totalNetWorthUsd > 0 ? 4 : 0;
 
   let score =
     chainSpreadScore +
@@ -46,39 +51,42 @@ function computeProtectionDiagnosis({ activeChains = [], netWorth = {}, pnlByCha
     profitableChainsScore +
     sellDisciplineScore +
     volumeDisciplineScore +
-    treasuryScore;
+    treasuryScore +
+    profitabilityLift;
 
-  if (realizedProfitUsd > 0 && totalSells === 0) score -= 12;
-  if (tradeBalance < 0.25 && totalTrades > 10) score -= 10;
+  if (realizedProfitUsd > 0 && totalSells === 0) score -= 8;
+  if (tradeBalance < 0.25 && totalTrades > 10) score -= 6;
+  if (totalNetWorthUsd >= 1000) score += 6;
+  else if (totalNetWorthUsd >= 250) score += 3;
 
-  score = Math.max(8, Math.min(95, Math.round(score)));
+  score = Math.max(18, Math.min(95, Math.round(score)));
 
   let status = 'Medium';
-  if (score >= 70) status = 'High';
-  if (score < 45) status = 'Low';
+  if (score >= 72) status = 'High';
+  if (score < 40) status = 'Low';
 
   let pattern = 'Builder';
   if (totalTrades > 25 && tradeBalance < 0.4) pattern = 'Reactive';
   else if (realizedProfitUsd > 0 && totalSells > 0) pattern = 'Protector';
-  else if (totalTrades <= 8) pattern = 'Patient';
+  else if (totalTrades <= 8 || totalNetWorthUsd > 250) pattern = 'Patient';
 
   const suggestedSweep = score >= 70 ? 5 : score >= 45 ? 10 : 15;
   const monthlyCapUsd =
     totalNetWorthUsd >= 5000 ? 500 : totalNetWorthUsd >= 1500 ? 250 : totalNetWorthUsd >= 500 ? 150 : 75;
 
   const summary =
-    score >= 70
+    score >= 72
       ? 'You already protect gains better than most onchain users, but a vault rule can make that discipline automatic.'
-      : score >= 45
-        ? 'You capture upside, but you do not protect enough of it before the next decision cycle begins.'
-        : 'Your wallet activity suggests that profits stay exposed too long and emotional re-entry risk is high.';
+      : score >= 40
+        ? 'You already show signs of healthy onchain discipline, and a vault rule can help you protect wins more consistently.'
+        : 'Your wallet shows real upside potential. A small protection rule can help you keep more of your wins over time.';
 
   const treatment =
-    score >= 70
+    score >= 72
       ? `Treatment: keep a light ${suggestedSweep}% sweep into the USDC vault and cap monthly protection at $${monthlyCapUsd}.`
-      : score >= 45
-        ? `Treatment: sweep ${suggestedSweep}% of realized gains into the USDC vault and cap monthly protection at $${monthlyCapUsd} to build a calmer habit.`
-        : `Treatment: start with a strict ${suggestedSweep}% profit sweep, protect gains weekly, and cap vaulting at $${monthlyCapUsd} until your behavior stabilizes.`;
+      : score >= 40
+        ? `Treatment: sweep ${suggestedSweep}% of realized gains into the USDC vault and cap monthly protection at $${monthlyCapUsd} to strengthen an already promising habit.`
+        : `Treatment: start with a steady ${suggestedSweep}% profit sweep, protect gains weekly, and cap vaulting at $${monthlyCapUsd} to turn good upside into lasting savings.`;
 
   return {
     diagnosis: {

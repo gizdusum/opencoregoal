@@ -704,13 +704,23 @@ async function connectWalletWithProvider(provider, providerName, providerType = 
   state.currentProvider = provider;
   state.currentProviderName = providerName;
   state.currentProviderType = providerType;
-  await ensureBaseSepolia(provider);
+  let networkNotice = '';
+  try {
+    await ensureBaseSepolia(provider);
+  } catch (error) {
+    try {
+      state.connectedChainId = await provider.request({ method: 'eth_chainId' });
+    } catch (_ignored) {
+      state.connectedChainId = null;
+    }
+    networkNotice = ' Wallet connected successfully. You can switch networks after connecting if your wallet does not auto-switch.';
+  }
   attachProviderListeners(provider);
   renderWalletBadge();
   closeWalletModal();
 
   if (state.connectedWallet) {
-    showConfirmation('Wallet connected.', `Connected ${shortenAddress(state.connectedWallet)} with ${normalizeProviderName(providerName)} for the user-facing flow. OWS vault execution remains protected in the background.`);
+    showConfirmation('Wallet connected.', `Connected ${shortenAddress(state.connectedWallet)} with ${normalizeProviderName(providerName)} for the user-facing flow. OWS vault execution remains protected in the background.${networkNotice}`);
     await analyzeWalletBehavior(true);
   } else {
     showConfirmation('Wallet connection failed.', 'No account was returned by the selected wallet. Try another wallet or reopen the picker.');
