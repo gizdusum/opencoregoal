@@ -30,6 +30,7 @@ const cadenceMap = {
 const els = {
   form: document.getElementById('goalForm'),
   themeToggle: document.getElementById('themeToggle'),
+  themeToggleLabel: document.querySelector('#themeToggle .theme-toggle-label'),
   networkSelect: document.getElementById('networkSelect'),
   walletConnectButton: document.getElementById('walletConnectButton'),
   walletDisconnectButton: document.getElementById('walletDisconnectButton'),
@@ -352,7 +353,9 @@ function renderWalletBadge() {
 function applyTheme(theme) {
   const dark = theme === 'dark';
   document.body.classList.toggle('theme-dark', dark);
-  els.themeToggle.textContent = dark ? 'Light' : 'Dark';
+  if (els.themeToggleLabel) {
+    els.themeToggleLabel.textContent = dark ? 'Light' : 'Dark';
+  }
 }
 
 function loadTheme() {

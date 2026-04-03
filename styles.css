@@ -175,15 +175,15 @@ body.theme-dark .topbar {
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 228px;
-  height: 160px;
-  flex: 0 0 228px;
+  width: 188px;
+  height: 132px;
+  flex: 0 0 188px;
   overflow: visible;
 }
 
 .brand-logo-image {
-  width: 228px;
-  height: 160px;
+  width: 188px;
+  height: 132px;
   object-fit: contain;
   display: block;
   opacity: 0;
@@ -246,11 +246,13 @@ body.theme-dark .topbar {
   grid-template-columns: minmax(450px, 1fr) auto;
   align-items: center;
   gap: 18px;
+  position: relative;
+  padding-top: 28px;
 }
 
 .topbar-controls {
   display: grid;
-  grid-template-columns: auto auto auto auto auto auto;
+  grid-template-columns: auto auto auto auto auto;
   align-items: center;
   gap: 10px;
 }
@@ -266,11 +268,18 @@ body.theme-dark .topbar {
   background: rgba(255, 255, 255, 0.42);
   color: var(--ink-soft);
   font-size: 0.92rem;
+  white-space: nowrap;
 }
 
 body.theme-dark .topbar-status {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(140, 235, 221, 0.08);
+}
+
+.topbar-status-floating {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .network-picker select,
@@ -336,6 +345,39 @@ body.theme-dark .wallet-badge {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(140, 235, 221, 0.12);
   color: var(--teal-deep);
+}
+
+.theme-toggle {
+  position: relative;
+  min-width: 92px;
+  justify-content: flex-end;
+  padding-left: 40px;
+  font-weight: 700;
+}
+
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(145deg, var(--teal), var(--teal-deep));
+  box-shadow: 0 4px 12px rgba(14, 143, 135, 0.22);
+  transition: left 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+body.theme-dark .theme-toggle::before {
+  left: 9px;
+  background: linear-gradient(145deg, #8cebdd, #3dcfbe);
+}
+
+body:not(.theme-dark) .theme-toggle::before {
+  left: 61px;
+  background: linear-gradient(145deg, #ffbf62, #ff9d2e);
+  box-shadow: 0 4px 12px rgba(255, 179, 71, 0.22);
 }
 
 .status-dot,
@@ -1666,14 +1708,14 @@ body.theme-dark .footer-link {
   }
 
   .brand-mark {
-    width: 148px;
-    height: 104px;
-    flex-basis: 148px;
+    width: 128px;
+    height: 90px;
+    flex-basis: 128px;
   }
 
   .brand-logo-image {
-    width: 148px;
-    height: 104px;
+    width: 128px;
+    height: 90px;
   }
 
   .topbar-status,
@@ -1685,6 +1727,15 @@ body.theme-dark .footer-link {
     width: 100%;
     justify-content: center;
     max-width: none;
+  }
+
+  .topbar-status-floating {
+    position: static;
+    order: -1;
+  }
+
+  .topbar-main {
+    padding-top: 0;
   }
 
   h1 {
