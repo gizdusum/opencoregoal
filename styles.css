@@ -166,7 +166,7 @@ body.theme-dark .topbar {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 18px;
+  gap: 22px;
   color: inherit;
   text-decoration: none;
   min-width: 0;
@@ -175,17 +175,18 @@ body.theme-dark .topbar {
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 96px;
-  height: 96px;
-  flex: 0 0 96px;
+  width: 176px;
+  height: 124px;
+  flex: 0 0 176px;
+  overflow: visible;
 }
 
 .brand-logo-image {
-  width: 96px;
-  height: 96px;
+  width: 176px;
+  height: 124px;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 14px 26px rgba(46, 36, 21, 0.12));
+  filter: drop-shadow(0 16px 26px rgba(46, 36, 21, 0.12));
 }
 
 .brand-copy {
@@ -234,7 +235,7 @@ body.theme-dark .topbar {
 
 .topbar-main {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) auto;
+  grid-template-columns: minmax(390px, 1fr) auto;
   align-items: center;
   gap: 18px;
 }
@@ -1657,14 +1658,14 @@ body.theme-dark .footer-link {
   }
 
   .brand-mark {
-    width: 72px;
-    height: 72px;
-    flex-basis: 72px;
+    width: 116px;
+    height: 82px;
+    flex-basis: 116px;
   }
 
   .brand-logo-image {
-    width: 72px;
-    height: 72px;
+    width: 116px;
+    height: 82px;
   }
 
   .topbar-status,

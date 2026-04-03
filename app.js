@@ -34,6 +34,7 @@ const els = {
   walletConnectButton: document.getElementById('walletConnectButton'),
   walletDisconnectButton: document.getElementById('walletDisconnectButton'),
   walletBadge: document.getElementById('walletBadge'),
+  brandLogoImage: document.getElementById('brandLogoImage'),
   asset: document.getElementById('asset'),
   amount: document.getElementById('amount'),
   cadence: document.getElementById('cadence'),
@@ -358,6 +359,75 @@ function loadTheme() {
   applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 }
 
+function makeLogoTransparent() {
+  const image = els.brandLogoImage;
+  if (!image) return;
+
+  const process = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const width = image.naturalWidth;
+    const height = image.naturalHeight;
+    if (!ctx || !width || !height) return;
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(image, 0, 0, width, height);
+
+    const frame = ctx.getImageData(0, 0, width, height);
+    const { data } = frame;
+    let minX = width;
+    let minY = height;
+    let maxX = 0;
+    let maxY = 0;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const a = data[i + 3];
+      const x = (i / 4) % width;
+      const y = Math.floor(i / 4 / width);
+
+      if (a > 0 && r > 242 && g > 242 && b > 242) {
+        data[i + 3] = 0;
+        continue;
+      }
+
+      if (data[i + 3] > 0) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+    }
+
+    ctx.putImageData(frame, 0, 0);
+
+    if (minX >= maxX || minY >= maxY) {
+      image.src = canvas.toDataURL('image/png');
+      return;
+    }
+
+    const pad = Math.round(Math.min(width, height) * 0.04);
+    const cropX = Math.max(0, minX - pad);
+    const cropY = Math.max(0, minY - pad);
+    const cropW = Math.min(width - cropX, maxX - minX + pad * 2);
+    const cropH = Math.min(height - cropY, maxY - minY + pad * 2);
+
+    const out = document.createElement('canvas');
+    const outCtx = out.getContext('2d');
+    if (!outCtx) return;
+    out.width = cropW;
+    out.height = cropH;
+    outCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+    image.src = out.toDataURL('image/png');
+  };
+
+  if (image.complete) process();
+  else image.addEventListener('load', process, { once: true });
+}
+
 function applyFormState(formData) {
   state.asset = formData.get('asset');
   state.amount = Number(formData.get('amount')) || state.amount;
@@ -671,6 +741,7 @@ els.themeToggle.addEventListener('click', () => {
 });
 
 loadTheme();
+makeLogoTransparent();
 render();
 resetDiagnosis();
 loadOwsStatus();
