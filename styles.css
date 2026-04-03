@@ -904,6 +904,7 @@ body.theme-dark .inset-panel {
 .journey-title {
   display: grid;
   gap: 2px;
+  max-width: calc(100% - 16px);
 }
 
 .journey-title .eyebrow.small {
@@ -912,9 +913,11 @@ body.theme-dark .inset-panel {
 }
 
 .journey-title h2 {
-  margin-top: -2px;
-  line-height: 0.94;
+  margin-top: 0;
+  font-size: clamp(1.35rem, 2.6vw, 2rem);
+  line-height: 0.98;
   letter-spacing: -0.06em;
+  padding-right: 10px;
 }
 
 .journey-pill {
