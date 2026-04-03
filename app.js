@@ -9,7 +9,8 @@ const state = {
   profitMode: true,
   profitShare: 10,
   connectedWallet: null,
-  connectedChainId: null
+  connectedChainId: null,
+  selectedChainId: '0x14a34'
 };
 
 const defaultSetup = {
@@ -29,7 +30,9 @@ const cadenceMap = {
 const els = {
   form: document.getElementById('goalForm'),
   themeToggle: document.getElementById('themeToggle'),
+  networkSelect: document.getElementById('networkSelect'),
   walletConnectButton: document.getElementById('walletConnectButton'),
+  walletDisconnectButton: document.getElementById('walletDisconnectButton'),
   walletBadge: document.getElementById('walletBadge'),
   asset: document.getElementById('asset'),
   amount: document.getElementById('amount'),
@@ -70,6 +73,24 @@ const els = {
 
 const THEME_KEY = 'opencoregoal-theme';
 const BASE_SEPOLIA_HEX = '0x14a34';
+const NETWORKS = {
+  '0x14a34': {
+    label: 'Base Sepolia',
+    chainName: 'Base Sepolia',
+    rpcUrls: ['https://sepolia.base.org'],
+    blockExplorerUrls: ['https://sepolia.basescan.org'],
+    owsChainId: 'eip155:84532',
+    onchainDemo: true
+  },
+  '0x1': {
+    label: 'Ethereum',
+    chainName: 'Ethereum Mainnet',
+    rpcUrls: ['https://ethereum-rpc.publicnode.com'],
+    blockExplorerUrls: ['https://etherscan.io'],
+    owsChainId: 'eip155:1',
+    onchainDemo: false
+  }
+};
 
 function formatMoney(value) {
   return new Intl.NumberFormat('en-US', {
@@ -113,7 +134,8 @@ function currentPayload() {
     profitMode: state.profitMode,
     profitShare: state.profitShare,
     connectedWallet: state.connectedWallet,
-    connectedChainId: state.connectedChainId
+    connectedChainId: state.connectedChainId,
+    selectedChainId: NETWORKS[state.selectedChainId]?.owsChainId || NETWORKS[BASE_SEPOLIA_HEX].owsChainId
   };
 }
 
@@ -225,18 +247,22 @@ function syncForm() {
   els.goalPrompt.value = state.goalPrompt;
   els.profitMode.checked = state.profitMode;
   els.profitShare.value = String(state.profitShare);
+  els.networkSelect.value = state.selectedChainId;
   renderWalletBadge();
 }
 
 function renderWalletBadge() {
   if (!state.connectedWallet) {
     els.walletBadge.hidden = true;
+    els.walletDisconnectButton.hidden = true;
     els.walletConnectButton.textContent = 'Connect wallet';
     return;
   }
 
   els.walletBadge.hidden = false;
-  els.walletBadge.textContent = `${shortenAddress(state.connectedWallet)} • ${state.connectedChainId === BASE_SEPOLIA_HEX ? 'Base Sepolia' : 'Wallet linked'}`;
+  els.walletDisconnectButton.hidden = false;
+  const networkLabel = NETWORKS[state.connectedChainId]?.label || NETWORKS[state.selectedChainId]?.label || 'Wallet linked';
+  els.walletBadge.textContent = `${shortenAddress(state.connectedWallet)} • ${networkLabel}`;
   els.walletConnectButton.textContent = 'Wallet connected';
 }
 
@@ -282,27 +308,29 @@ async function ensureBaseSepolia() {
 
   const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
   state.connectedChainId = currentChainId;
-  if (currentChainId === BASE_SEPOLIA_HEX) return;
+  if (currentChainId === state.selectedChainId) return;
+
+  const target = NETWORKS[state.selectedChainId];
 
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: BASE_SEPOLIA_HEX }]
+      params: [{ chainId: state.selectedChainId }]
     });
-    state.connectedChainId = BASE_SEPOLIA_HEX;
+    state.connectedChainId = state.selectedChainId;
   } catch (error) {
     if (error.code === 4902) {
       await window.ethereum.request({
         method: 'wallet_addEthereumChain',
         params: [{
-          chainId: BASE_SEPOLIA_HEX,
-          chainName: 'Base Sepolia',
+          chainId: state.selectedChainId,
+          chainName: target.chainName,
           nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
-          rpcUrls: ['https://sepolia.base.org'],
-          blockExplorerUrls: ['https://sepolia.basescan.org']
+          rpcUrls: target.rpcUrls,
+          blockExplorerUrls: target.blockExplorerUrls
         }]
       });
-      state.connectedChainId = BASE_SEPOLIA_HEX;
+      state.connectedChainId = state.selectedChainId;
       return;
     }
     throw error;
@@ -366,6 +394,14 @@ async function createLiveRequest() {
 }
 
 async function runOnchainDemo() {
+  if (!NETWORKS[state.selectedChainId]?.onchainDemo) {
+    const message = 'The live onchain demo currently runs on Base Sepolia. Switch the network selector back to Base Sepolia to use it.';
+    els.onchainHeadline.textContent = 'Network not supported for demo.';
+    els.onchainBody.textContent = message;
+    showConfirmation('Switch to Base Sepolia.', message);
+    return;
+  }
+
   els.onchainHeadline.textContent = 'Preparing live transfer...';
   els.onchainBody.textContent = 'Building an onchain demo transfer from the trader wallet to the goal vault.';
 
@@ -432,11 +468,32 @@ els.onchainDemoButton.addEventListener('click', async () => {
   }
 });
 
-els.walletConnectButton.addEventListener('click', async () => {
+  els.walletConnectButton.addEventListener('click', async () => {
   try {
     await connectWallet();
   } catch (error) {
     showConfirmation('Wallet connection failed.', error.message);
+  }
+});
+
+els.walletDisconnectButton.addEventListener('click', () => {
+  state.connectedWallet = null;
+  state.connectedChainId = null;
+  renderWalletBadge();
+  showConfirmation('Wallet disconnected.', 'The UI wallet connection has been cleared from this session.');
+});
+
+els.networkSelect.addEventListener('change', async () => {
+  state.selectedChainId = els.networkSelect.value;
+  renderWalletBadge();
+
+  if (state.connectedWallet && window.ethereum) {
+    try {
+      await ensureBaseSepolia();
+      renderWalletBadge();
+    } catch (error) {
+      showConfirmation('Network switch failed.', error.message);
+    }
   }
 });
 

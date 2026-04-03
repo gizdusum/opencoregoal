@@ -123,6 +123,10 @@ function normalizePlan(input = {}) {
   const yearlyMultiplier = cadence === 'weekly' ? 52 / 12 : cadence === 'monthly' ? 1 : 1 / 12;
   const targetUsd = Math.round(amount * yearlyMultiplier * duration);
 
+  const selectedChainId = ['eip155:84532', 'eip155:1'].includes(input.selectedChainId)
+    ? input.selectedChainId
+    : DEFAULT_CHAIN_ID;
+
   return {
     asset,
     amount,
@@ -133,7 +137,7 @@ function normalizePlan(input = {}) {
     profitShare,
     monthlyCapUsd,
     targetUsd,
-    chainId: DEFAULT_CHAIN_ID
+    chainId: selectedChainId
   };
 }
 
