@@ -147,6 +147,34 @@ function normalizeProviderName(name = 'Wallet') {
   return name.replace(/\s+extension$/i, '').trim();
 }
 
+function isSupportedWallet(providerDetail) {
+  const provider = providerDetail?.provider;
+  const name = normalizeProviderName(providerDetail?.info?.name || '');
+  const supportedNames = [
+    'MetaMask',
+    'Rabby',
+    'Phantom',
+    'Coinbase Wallet',
+    'Trust Wallet',
+    'Brave Wallet',
+    'OKX Wallet',
+    'Binance Wallet',
+    'Rainbow'
+  ];
+
+  if (!providerSupports(provider, 'eth_requestAccounts')) return false;
+  if (
+    provider?.isMetaMask ||
+    provider?.isRabby ||
+    provider?.isPhantom ||
+    provider?.isCoinbaseWallet ||
+    provider?.isTrust ||
+    provider?.isBraveWallet
+  ) return true;
+
+  return supportedNames.includes(name);
+}
+
 function walletMarkContent(wallet) {
   if (wallet?.icon) {
     return `<img src="${wallet.icon}" alt="${wallet.name} icon" />`;
@@ -365,6 +393,7 @@ function renderWalletBadge() {
   if (!state.connectedWallet) {
     els.walletBadge.hidden = true;
     els.walletDisconnectButton.hidden = true;
+    els.walletConnectButton.hidden = false;
     els.walletConnectButton.textContent = 'Connect wallet';
     setCodeValue(els.traderWalletName, 'Not connected', 'No user wallet connected');
     return;
@@ -372,10 +401,11 @@ function renderWalletBadge() {
 
   els.walletBadge.hidden = false;
   els.walletDisconnectButton.hidden = false;
+  els.walletConnectButton.hidden = false;
   const networkLabel = NETWORKS[state.connectedChainId]?.label || NETWORKS[state.selectedChainId]?.label || 'Wallet linked';
   els.walletBadge.textContent = shortenAddress(state.connectedWallet);
   els.walletBadge.title = `${state.connectedWallet} on ${networkLabel}${state.currentProviderName ? ` via ${state.currentProviderName}` : ''}`;
-  els.walletConnectButton.textContent = state.currentProviderName ? normalizeProviderName(state.currentProviderName) : 'Wallet connected';
+  els.walletConnectButton.textContent = 'Switch wallet';
   setCodeValue(
     els.traderWalletName,
     shortenAddress(state.connectedWallet),
@@ -405,7 +435,7 @@ function closeWalletModal() {
 }
 
 function renderWalletOptions() {
-  const wallets = Array.from(discoveredWallets.values()).sort((a, b) =>
+  const wallets = Array.from(discoveredWallets.values()).filter(isSupportedWallet).sort((a, b) =>
     normalizeProviderName(a.info.name).localeCompare(normalizeProviderName(b.info.name))
   );
 
@@ -682,6 +712,8 @@ async function connectWalletWithProvider(provider, providerName, providerType = 
   if (state.connectedWallet) {
     showConfirmation('Wallet connected.', `Connected ${shortenAddress(state.connectedWallet)} with ${normalizeProviderName(providerName)} for the user-facing flow. OWS vault execution remains protected in the background.`);
     await analyzeWalletBehavior(true);
+  } else {
+    showConfirmation('Wallet connection failed.', 'No account was returned by the selected wallet. Try another wallet or reopen the picker.');
   }
 }
 
