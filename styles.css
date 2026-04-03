@@ -1310,6 +1310,99 @@ body.theme-dark .plan-link {
   color: var(--teal-300);
 }
 
+.diagnosis-card {
+  background: linear-gradient(180deg, rgba(229, 248, 244, 0.78), rgba(255, 255, 255, 0.62));
+}
+
+body.theme-dark .diagnosis-card {
+  background: linear-gradient(180deg, rgba(15, 37, 43, 0.98), rgba(16, 28, 36, 0.96));
+}
+
+.diagnosis-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.diagnosis-head strong {
+  font-size: clamp(1.9rem, 4vw, 2.4rem);
+  line-height: 1;
+}
+
+.diagnosis-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(14, 143, 135, 0.2);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--teal-700);
+  font-family: var(--mono);
+  font-size: 0.73rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.diagnosis-pill.low,
+.diagnosis-pill.unavailable {
+  color: #ad4b4b;
+  border-color: rgba(173, 75, 75, 0.22);
+}
+
+.diagnosis-pill.medium {
+  color: #9f6f1f;
+  border-color: rgba(159, 111, 31, 0.2);
+}
+
+.diagnosis-pill.high {
+  color: #17795d;
+  border-color: rgba(23, 121, 93, 0.22);
+}
+
+body.theme-dark .diagnosis-pill {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.diagnosis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.diagnosis-grid strong {
+  display: block;
+  margin-top: 6px;
+}
+
+.diagnosis-treatment {
+  margin: 14px 0 0;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.tertiary-button {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(14, 143, 135, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+body.theme-dark .tertiary-button {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(78, 204, 188, 0.16);
+  color: var(--ink);
+}
+
 .reason-grid {
   display: flex;
   flex-wrap: wrap;
