@@ -166,7 +166,7 @@ body.theme-dark .topbar {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 22px;
+  gap: 18px;
   color: inherit;
   text-decoration: none;
   min-width: 0;
@@ -200,17 +200,21 @@ body.theme-dark .topbar {
 .brand-copy {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  justify-content: center;
   min-width: 0;
 }
 
-.brand-copy strong {
-  font-family: var(--display);
-  font-size: 1.08rem;
-}
-
-.brand-copy strong span {
-  display: inline-block;
+.brand-wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.04em;
+  font-family: var(--sans);
+  font-size: clamp(2rem, 2.5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  color: var(--ink);
 }
 
 .brand-open {
@@ -219,13 +223,11 @@ body.theme-dark .topbar {
 }
 
 .brand-core {
-  margin-left: 0.08em;
-  color: var(--teal-deep);
+  color: var(--ink);
 }
 
 .brand-goal {
-  margin-left: 0.08em;
-  color: var(--berry);
+  color: var(--ink);
 }
 
 .brand-copy span,
@@ -349,16 +351,18 @@ body.theme-dark .wallet-badge {
 
 .theme-toggle {
   position: relative;
-  min-width: 92px;
-  justify-content: flex-end;
-  padding-left: 40px;
+  min-width: 108px;
+  justify-content: flex-start;
+  padding-left: 18px;
+  padding-right: 46px;
   font-weight: 700;
+  overflow: hidden;
 }
 
 .theme-toggle::before {
   content: '';
   position: absolute;
-  left: 9px;
+  right: 9px;
   top: 50%;
   width: 20px;
   height: 20px;
@@ -370,14 +374,20 @@ body.theme-dark .wallet-badge {
 }
 
 body.theme-dark .theme-toggle::before {
-  left: 9px;
+  right: 9px;
   background: linear-gradient(145deg, #8cebdd, #3dcfbe);
 }
 
 body:not(.theme-dark) .theme-toggle::before {
-  left: 61px;
+  right: 9px;
   background: linear-gradient(145deg, #ffbf62, #ff9d2e);
   box-shadow: 0 4px 12px rgba(255, 179, 71, 0.22);
+}
+
+.theme-toggle-label {
+  display: inline-block;
+  min-width: 40px;
+  text-align: left;
 }
 
 .status-dot,
@@ -1716,6 +1726,10 @@ body.theme-dark .footer-link {
   .brand-logo-image {
     width: 128px;
     height: 90px;
+  }
+
+  .brand-wordmark {
+    font-size: 1.65rem;
   }
 
   .topbar-status,
