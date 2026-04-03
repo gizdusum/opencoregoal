@@ -338,7 +338,8 @@ function renderWalletBadge() {
   els.walletBadge.hidden = false;
   els.walletDisconnectButton.hidden = false;
   const networkLabel = NETWORKS[state.connectedChainId]?.label || NETWORKS[state.selectedChainId]?.label || 'Wallet linked';
-  els.walletBadge.textContent = `${shortenAddress(state.connectedWallet)} • ${networkLabel}`;
+  els.walletBadge.textContent = shortenAddress(state.connectedWallet);
+  els.walletBadge.title = `${state.connectedWallet} on ${networkLabel}`;
   els.walletConnectButton.textContent = 'Wallet connected';
   setCodeValue(
     els.traderWalletName,
