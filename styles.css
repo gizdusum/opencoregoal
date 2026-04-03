@@ -147,7 +147,7 @@ body.theme-dark .ambient-right {
 .topbar {
   display: block;
   margin-bottom: 18px;
-  padding: 18px 22px;
+  padding: 16px 20px;
   border: 1px solid rgba(64, 47, 18, 0.1);
   border-radius: 34px;
   background: rgba(255, 251, 244, 0.88);
@@ -166,7 +166,7 @@ body.theme-dark .topbar {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   color: inherit;
   text-decoration: none;
   min-width: 0;
@@ -175,9 +175,9 @@ body.theme-dark .topbar {
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 22px;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
   background:
     radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), transparent 45%),
     linear-gradient(145deg, #fffef9, #efe3cd);
@@ -195,83 +195,24 @@ body.theme-dark .brand-mark {
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.core-mark {
-  position: relative;
+.brand-logo-image {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
   display: block;
-  width: 34px;
-  height: 34px;
-}
-
-.core-ring,
-.core-axis,
-.core-dot {
-  position: absolute;
-}
-
-.core-ring {
-  inset: 4px;
-  border: 3px solid var(--ink);
-  border-radius: 12px;
-}
-
-.ring-a {
-  transform: rotate(45deg);
-}
-
-.ring-b {
-  inset: 9px;
-  border-width: 2px;
-  opacity: 0.78;
-  transform: rotate(45deg);
-}
-
-.core-axis {
-  left: 50%;
-  top: 50%;
-  background: var(--teal);
-  border-radius: 999px;
-  transform: translate(-50%, -50%);
-}
-
-.axis-a {
-  width: 18px;
-  height: 3px;
-}
-
-.axis-b {
-  width: 3px;
-  height: 18px;
-}
-
-.core-dot {
-  left: 50%;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--sun);
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 4px rgba(255, 179, 71, 0.16);
-}
-
-body.theme-dark .core-ring {
-  border-color: rgba(237, 247, 255, 0.88);
-}
-
-body.theme-dark .core-dot {
-  box-shadow: 0 0 0 4px rgba(255, 191, 98, 0.18);
+  filter: drop-shadow(0 8px 18px rgba(46, 36, 21, 0.08));
 }
 
 .brand-copy {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
 .brand-copy strong {
   font-family: var(--display);
-  font-size: 1.08rem;
+  font-size: 1rem;
 }
 
 .brand-copy strong span {
@@ -307,22 +248,17 @@ body.theme-dark .core-dot {
 }
 
 .topbar-main {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 18px;
 }
 
 .topbar-controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto;
   align-items: center;
-  justify-content: flex-end;
   gap: 10px;
-  flex-wrap: wrap;
-}
-
-.topbar-controls .theme-toggle {
-  margin-left: auto;
 }
 
 .topbar-status {
@@ -347,8 +283,8 @@ body.theme-dark .topbar-status {
 .wallet-connect,
 .wallet-disconnect,
 .theme-toggle {
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 36px;
+  padding: 0 13px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.44);
@@ -367,8 +303,8 @@ body.theme-dark .theme-toggle {
 
 .network-picker select {
   appearance: none;
-  min-width: 148px;
-  padding-right: 34px;
+  min-width: 132px;
+  padding-right: 30px;
 }
 
 .wallet-connect {
@@ -387,16 +323,16 @@ body.theme-dark .theme-toggle {
 .wallet-badge {
   display: inline-flex;
   align-items: center;
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 36px;
+  padding: 0 12px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.42);
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   letter-spacing: 0.08em;
-  max-width: 150px;
+  max-width: 132px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1723,6 +1659,14 @@ body.theme-dark .footer-link {
     align-items: stretch;
   }
 
+  .topbar-main {
+    display: flex;
+  }
+
+  .topbar-controls {
+    display: flex;
+  }
+
   .topbar-status,
   .wallet-badge,
   .network-picker select,
@@ -1732,10 +1676,6 @@ body.theme-dark .footer-link {
     width: 100%;
     justify-content: center;
     max-width: none;
-  }
-
-  .topbar-controls .theme-toggle {
-    margin-left: 0;
   }
 
   h1 {
