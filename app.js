@@ -355,7 +355,7 @@ function applyTheme(theme) {
 }
 
 function loadTheme() {
-  applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+  applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 }
 
 function applyFormState(formData) {
