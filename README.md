@@ -4,7 +4,7 @@ OpenCoreGoal is a goal-based auto wallet demo built for the OpenWallet / OWS hac
 
 ## Live links
 
-- Public app: [openwallet-goal.vercel.app](https://openwallet-goal.vercel.app)
+- Public app: [opencoregoal.vercel.app](https://opencoregoal.vercel.app)
 - Live backend demo: [187.124.91.33:8787](http://187.124.91.33:8787/)
 - Repository: [gizdusum/opencoregoal](https://github.com/gizdusum/opencoregoal)
 
