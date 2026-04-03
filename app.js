@@ -71,7 +71,8 @@ const els = {
   requestHeadline: document.getElementById('requestHeadline'),
   requestBody: document.getElementById('requestBody'),
   onchainHeadline: document.getElementById('onchainHeadline'),
-  onchainBody: document.getElementById('onchainBody')
+  onchainBody: document.getElementById('onchainBody'),
+  onchainLink: document.getElementById('onchainLink')
 };
 
 const THEME_KEY = 'opencoregoal-theme';
@@ -457,6 +458,8 @@ async function createLiveRequest() {
 }
 
 async function runOnchainDemo() {
+  els.onchainLink.hidden = true;
+
   if (!NETWORKS[state.selectedChainId]?.onchainDemo) {
     const message = 'The live onchain demo currently runs on Base Sepolia. Switch the network selector back to Base Sepolia to use it.';
     els.onchainHeadline.textContent = 'Network not supported for demo.';
@@ -480,6 +483,11 @@ async function runOnchainDemo() {
     const hash = data.execution.txHash;
     els.onchainHeadline.textContent = 'Live transfer broadcast.';
     els.onchainBody.textContent = `${data.execution.chain} tx hash: ${shortenAddress(hash)}`;
+    const explorer = NETWORKS[state.selectedChainId]?.blockExplorerUrls?.[0];
+    if (explorer) {
+      els.onchainLink.href = `${explorer}/tx/${hash}`;
+      els.onchainLink.hidden = false;
+    }
     showConfirmation('Onchain demo sent.', `The trader wallet broadcast a live transfer into the goal vault on ${data.execution.chain}.`);
     return;
   }
@@ -487,6 +495,7 @@ async function runOnchainDemo() {
   const note = data.execution?.note || data.execution?.error || data.error || 'The transfer could not be broadcast.';
   els.onchainHeadline.textContent = 'Transfer path is ready.';
   els.onchainBody.textContent = note;
+  els.onchainLink.hidden = true;
   showConfirmation('Onchain demo prepared.', note);
 }
 
