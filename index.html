@@ -22,31 +22,39 @@
     <div class="ambient ambient-right"></div>
 
     <header class="topbar">
-      <a class="brand" href="#top" aria-label="OpenCoreGoal home">
-        <span class="brand-mark">
-          <span class="ows-mark" aria-hidden="true">
-            <span></span><span></span><span></span><span></span>
+      <div class="topbar-main">
+        <a class="brand" href="#top" aria-label="OpenCoreGoal home">
+          <span class="brand-mark">
+            <span class="core-mark" aria-hidden="true">
+              <span class="core-ring ring-a"></span>
+              <span class="core-ring ring-b"></span>
+              <span class="core-axis axis-a"></span>
+              <span class="core-axis axis-b"></span>
+              <span class="core-dot"></span>
+            </span>
           </span>
-        </span>
-        <span class="brand-copy">
-          <strong><span class="brand-open">Open</span><span class="brand-core">Core</span><span class="brand-goal">Goal</span></strong>
-          <span>Goal-based auto wallet</span>
-        </span>
-      </a>
+          <span class="brand-copy">
+            <strong><span class="brand-open">Open</span><span class="brand-core">Core</span><span class="brand-goal">Goal</span></strong>
+            <span>Policy-first vaulting for profit protection</span>
+          </span>
+        </a>
 
-      <div class="topbar-copy">
-        <label class="network-picker" aria-label="Select network">
-          <select id="networkSelect">
-            <option value="0x14a34" selected>Base Sepolia</option>
-            <option value="0x1">Ethereum</option>
-          </select>
-        </label>
-        <button class="wallet-connect" id="walletConnectButton" type="button">Connect wallet</button>
-        <button class="wallet-disconnect" id="walletDisconnectButton" type="button" hidden>Disconnect</button>
-        <span class="wallet-badge" id="walletBadge" hidden>Wallet not connected</span>
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">Dark</button>
-        <span class="status-dot"></span>
-        <span>OpenWallet hackathon MVP</span>
+        <div class="topbar-controls">
+          <span class="topbar-status">
+            <span class="status-dot"></span>
+            <span>OWS Hackathon MVP</span>
+          </span>
+          <label class="network-picker" aria-label="Select network">
+            <select id="networkSelect">
+              <option value="0x14a34" selected>Base Sepolia</option>
+              <option value="0x1">Ethereum</option>
+            </select>
+          </label>
+          <button class="wallet-connect" id="walletConnectButton" type="button">Connect wallet</button>
+          <button class="wallet-disconnect" id="walletDisconnectButton" type="button" hidden>Disconnect</button>
+          <span class="wallet-badge" id="walletBadge" hidden>Wallet not connected</span>
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">Dark</button>
+        </div>
       </div>
     </header>
 
@@ -211,6 +219,41 @@
             </article>
           </div>
 
+          <div class="diagnosis-card diagnosis-card-compact" id="diagnosisCard">
+            <div class="diagnosis-topline">
+              <span class="card-label">Profit Protection Score</span>
+              <button class="tertiary-button" id="analyzeWalletButton" type="button">Analyze wallet</button>
+            </div>
+            <div class="diagnosis-layout">
+              <div class="diagnosis-score">
+                <strong id="scoreValue">--/100</strong>
+                <span class="diagnosis-pill" id="scoreStatus">Connect wallet</span>
+              </div>
+              <div class="diagnosis-copy">
+                <p id="diagnosisSummary">Connect a wallet to analyze your onchain behavior and estimate how well you protect gains.</p>
+                <div class="diagnosis-grid">
+                  <div>
+                    <span class="metric-label">Pattern</span>
+                    <strong id="diagnosisPattern">Not analyzed</strong>
+                  </div>
+                  <div>
+                    <span class="metric-label">Chains</span>
+                    <strong id="diagnosisChains">--</strong>
+                  </div>
+                  <div>
+                    <span class="metric-label">Suggested sweep</span>
+                    <strong id="recommendedSweep">--</strong>
+                  </div>
+                  <div>
+                    <span class="metric-label">Monthly cap</span>
+                    <strong id="recommendedCap">--</strong>
+                  </div>
+                </div>
+                <p class="diagnosis-treatment" id="diagnosisTreatment">A treatment plan will appear here after wallet analysis.</p>
+              </div>
+            </div>
+          </div>
+
           <div class="ows-live-card">
             <span class="card-label">Live OWS setup</span>
             <div class="ows-live-grid">
@@ -301,35 +344,6 @@
               <span class="card-label">Profit sweep</span>
               <strong id="profitSentence">Redirect 10% of positive PNL into this goal vault.</strong>
               <p id="profitText">Save from wins without forcing a full sale.</p>
-            </article>
-
-            <article class="plan-card diagnosis-card" id="diagnosisCard">
-              <span class="card-label">Profit Protection Score</span>
-              <div class="diagnosis-head">
-                <strong id="scoreValue">--/100</strong>
-                <span class="diagnosis-pill" id="scoreStatus">Connect wallet</span>
-              </div>
-              <p id="diagnosisSummary">Connect a wallet to analyze your onchain behavior and estimate how well you protect gains.</p>
-              <div class="diagnosis-grid">
-                <div>
-                  <span class="metric-label">Pattern</span>
-                  <strong id="diagnosisPattern">Not analyzed</strong>
-                </div>
-                <div>
-                  <span class="metric-label">Chains</span>
-                  <strong id="diagnosisChains">--</strong>
-                </div>
-                <div>
-                  <span class="metric-label">Suggested sweep</span>
-                  <strong id="recommendedSweep">--</strong>
-                </div>
-                <div>
-                  <span class="metric-label">Monthly cap</span>
-                  <strong id="recommendedCap">--</strong>
-                </div>
-              </div>
-              <p class="diagnosis-treatment" id="diagnosisTreatment">A treatment plan will appear here after wallet analysis.</p>
-              <button class="tertiary-button" id="analyzeWalletButton" type="button">Analyze wallet</button>
             </article>
 
             <article class="plan-card" id="requestCard">
