@@ -651,6 +651,10 @@ body.theme-dark .profit-toggle {
   pointer-events: none;
 }
 
+.success-toast[hidden] {
+  display: none !important;
+}
+
 .success-toast strong {
   font-size: 1rem;
 }
