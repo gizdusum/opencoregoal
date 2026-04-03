@@ -728,12 +728,14 @@ body.theme-dark .success-toast p {
 .wallet-modal-sheet {
   position: relative;
   width: min(560px, calc(100vw - 32px));
-  margin: 10vh auto 0;
+  max-height: min(76vh, 720px);
+  margin: 7vh auto 0;
   padding: 22px;
   border-radius: 28px;
   border: 1px solid var(--line);
   background: var(--panel-strong);
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
 body.theme-dark .wallet-modal-sheet {
@@ -776,6 +778,18 @@ body.theme-dark .wallet-modal-close {
 .wallet-modal-list {
   display: grid;
   gap: 12px;
+  max-height: min(42vh, 360px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.wallet-modal-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.wallet-modal-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(140, 235, 221, 0.22);
 }
 
 .wallet-modal-option {
