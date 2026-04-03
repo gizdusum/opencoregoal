@@ -46,6 +46,9 @@ const els = {
   confirmationCard: document.getElementById('confirmationCard'),
   confirmationTitle: document.getElementById('confirmationTitle'),
   confirmationText: document.getElementById('confirmationText'),
+  successToast: document.getElementById('successToast'),
+  successToastTitle: document.getElementById('successToastTitle'),
+  successToastText: document.getElementById('successToastText'),
   traderWalletName: document.getElementById('traderWalletName'),
   vaultWalletName: document.getElementById('vaultWalletName'),
   vaultAddress: document.getElementById('vaultAddress'),
@@ -73,6 +76,7 @@ const els = {
 
 const THEME_KEY = 'opencoregoal-theme';
 const BASE_SEPOLIA_HEX = '0x14a34';
+let toastTimer = null;
 const NETWORKS = {
   '0x14a34': {
     label: 'Base Sepolia',
@@ -203,6 +207,20 @@ function showConfirmation(headline, body) {
   els.confirmationCard.classList.remove('show');
   void els.confirmationCard.offsetWidth;
   els.confirmationCard.classList.add('show');
+}
+
+function showSuccessToast(title, body) {
+  if (toastTimer) clearTimeout(toastTimer);
+  els.successToastTitle.textContent = title;
+  els.successToastText.textContent = body;
+  els.successToast.hidden = false;
+  els.successToast.classList.remove('show');
+  void els.successToast.offsetWidth;
+  els.successToast.classList.add('show');
+  toastTimer = window.setTimeout(() => {
+    els.successToast.hidden = true;
+    els.successToast.classList.remove('show');
+  }, 3200);
 }
 
 function parsePrompt(prompt) {
@@ -435,6 +453,7 @@ async function createLiveRequest() {
   els.requestHeadline.textContent = 'Signed request created.';
   els.requestBody.textContent = `Wallet approved and OWS signed the live request. Signature: ${shortSignature}`;
   showConfirmation('Live OWS request ready.', `Your wallet approved the plan and ${data.policy.reason.toLowerCase()}`);
+  showSuccessToast('Plan approved', 'Success. Keep building your onchain savings one step at a time.');
 }
 
 async function runOnchainDemo() {
