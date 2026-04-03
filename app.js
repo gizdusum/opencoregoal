@@ -83,6 +83,11 @@ function shortenAddress(address) {
   return `${address.slice(0, 8)}...${address.slice(-4)}`;
 }
 
+function setCodeValue(element, label, fullValue = label) {
+  element.textContent = label;
+  element.title = fullValue;
+}
+
 function sentenceCase(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -261,11 +266,11 @@ async function loadOwsStatus() {
     const response = await fetch('/api/ows/status');
     if (!response.ok) return;
     const data = await response.json();
-    els.traderWalletName.textContent = data.wallets.trader.name;
-    els.vaultWalletName.textContent = data.wallets.vault.name;
-    els.vaultAddress.textContent = shortenAddress(data.wallets.vault.address);
-    els.vaultPolicy.textContent = data.policy.id;
-    els.vaultKeyName.textContent = defaultSetup.keyName;
+    setCodeValue(els.traderWalletName, 'Trader wallet', data.wallets.trader.name);
+    setCodeValue(els.vaultWalletName, 'Goal vault', data.wallets.vault.name);
+    setCodeValue(els.vaultAddress, shortenAddress(data.wallets.vault.address), data.wallets.vault.address);
+    setCodeValue(els.vaultPolicy, 'Profit Vault Guard', data.policy.id);
+    setCodeValue(els.vaultKeyName, 'Guarded agent key', defaultSetup.keyName);
   } catch (error) {
     els.requestHeadline.textContent = 'Backend not connected yet.';
     els.requestBody.textContent = 'Open the app through the Node server to enable live OWS requests.';
@@ -375,7 +380,7 @@ async function runOnchainDemo() {
   if (data.ok && data.execution?.txHash) {
     const hash = data.execution.txHash;
     els.onchainHeadline.textContent = 'Live transfer broadcast.';
-    els.onchainBody.textContent = `${data.execution.chain} tx hash: ${hash}`;
+    els.onchainBody.textContent = `${data.execution.chain} tx hash: ${shortenAddress(hash)}`;
     showConfirmation('Onchain demo sent.', `The trader wallet broadcast a live transfer into the goal vault on ${data.execution.chain}.`);
     return;
   }

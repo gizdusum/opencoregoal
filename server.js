@@ -100,6 +100,14 @@ function loadPolicyConfig() {
   return JSON.parse(fs.readFileSync(POLICY_FILE, 'utf8'));
 }
 
+function pickTxHash(parsed, fallback) {
+  if (typeof parsed?.tx_hash === 'string') return parsed.tx_hash;
+  if (typeof parsed?.txHash === 'string') return parsed.txHash;
+  if (typeof parsed?.hash === 'string') return parsed.hash;
+  if (typeof parsed?.transactionHash === 'string') return parsed.transactionHash;
+  return fallback;
+}
+
 function normalizePlan(input = {}) {
   const amount = Math.max(Number(input.amount) || 50, 10);
   const cadence = ['weekly', 'monthly', 'yearly'].includes(input.cadence) ? input.cadence : 'weekly';
@@ -269,7 +277,7 @@ async function tryOnchainTransfer(plan) {
       prepared,
       execution: {
         chain: DEFAULT_CHAIN_NAME,
-        txHash: parsed.txHash || parsed.hash || parsed.transactionHash || parsed.raw || stdout
+        txHash: pickTxHash(parsed, stdout)
       }
     };
   } catch (error) {
