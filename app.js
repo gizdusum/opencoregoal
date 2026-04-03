@@ -256,6 +256,7 @@ function renderWalletBadge() {
     els.walletBadge.hidden = true;
     els.walletDisconnectButton.hidden = true;
     els.walletConnectButton.textContent = 'Connect wallet';
+    setCodeValue(els.traderWalletName, 'Not connected', 'No user wallet connected');
     return;
   }
 
@@ -264,6 +265,11 @@ function renderWalletBadge() {
   const networkLabel = NETWORKS[state.connectedChainId]?.label || NETWORKS[state.selectedChainId]?.label || 'Wallet linked';
   els.walletBadge.textContent = `${shortenAddress(state.connectedWallet)} • ${networkLabel}`;
   els.walletConnectButton.textContent = 'Wallet connected';
+  setCodeValue(
+    els.traderWalletName,
+    shortenAddress(state.connectedWallet),
+    `${state.connectedWallet} on ${networkLabel}`
+  );
 }
 
 function applyTheme(theme) {
@@ -292,11 +298,11 @@ async function loadOwsStatus() {
     const response = await fetch('/api/ows/status');
     if (!response.ok) return;
     const data = await response.json();
-    setCodeValue(els.traderWalletName, 'Trader wallet', data.wallets.trader.name);
     setCodeValue(els.vaultWalletName, 'Goal vault', data.wallets.vault.name);
     setCodeValue(els.vaultAddress, shortenAddress(data.wallets.vault.address), data.wallets.vault.address);
     setCodeValue(els.vaultPolicy, 'Profit Vault Guard', data.policy.id);
     setCodeValue(els.vaultKeyName, 'Guarded agent key', defaultSetup.keyName);
+    renderWalletBadge();
   } catch (error) {
     els.requestHeadline.textContent = 'Backend not connected yet.';
     els.requestBody.textContent = 'Open the app through the Node server to enable live OWS requests.';
