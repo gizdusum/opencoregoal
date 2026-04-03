@@ -633,6 +633,47 @@ body.theme-dark .profit-toggle {
   animation: confirmIn 420ms ease;
 }
 
+.success-toast {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 30;
+  display: grid;
+  gap: 4px;
+  width: min(340px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(38, 166, 91, 0.24);
+  background: linear-gradient(135deg, rgba(239, 255, 245, 0.96), rgba(222, 249, 231, 0.98));
+  color: #14532d;
+  box-shadow: 0 18px 40px rgba(22, 101, 52, 0.16);
+}
+
+.success-toast strong {
+  font-size: 1rem;
+}
+
+.success-toast p {
+  margin: 0;
+  color: rgba(20, 83, 45, 0.88);
+  line-height: 1.45;
+}
+
+.success-toast.show {
+  animation: toastIn 320ms ease;
+}
+
+body.theme-dark .success-toast {
+  border-color: rgba(74, 222, 128, 0.18);
+  background: linear-gradient(135deg, rgba(16, 54, 34, 0.98), rgba(10, 40, 26, 0.98));
+  color: #d7ffe5;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
+body.theme-dark .success-toast p {
+  color: rgba(215, 255, 229, 0.82);
+}
+
 .command-label,
 .quick-start label,
 .planner-form label {
@@ -1415,6 +1456,11 @@ body.theme-dark .footer-link {
 @keyframes confirmIn {
   0% { opacity: 0; transform: translateY(8px); }
   100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastIn {
+  0% { opacity: 0; transform: translateY(12px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes floatSoft {
