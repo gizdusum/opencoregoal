@@ -65,7 +65,7 @@ OWS is the core safety layer of the product:
 
 ## Public links
 
-- App: [https://openwallet-goal.vercel.app](https://openwallet-goal.vercel.app)
+- App: [https://opencoregoal.vercel.app](https://opencoregoal.vercel.app)
 - Repo: [https://github.com/gizdusum/opencoregoal](https://github.com/gizdusum/opencoregoal)
 
 ## Tagline options
