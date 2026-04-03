@@ -219,7 +219,8 @@ body.theme-dark .topbar {
 
 .brand-open {
   font-weight: 700;
-  color: var(--ink);
+  color: var(--teal-deep);
+  text-shadow: 0 0 18px rgba(61, 207, 190, 0.14);
 }
 
 .brand-core {
