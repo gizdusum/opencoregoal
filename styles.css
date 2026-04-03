@@ -315,7 +315,9 @@ body.theme-dark .brand-mark {
   flex-wrap: wrap;
 }
 
+.network-picker select,
 .wallet-connect,
+.wallet-disconnect,
 .theme-toggle {
   min-height: 38px;
   padding: 0 14px;
@@ -325,12 +327,20 @@ body.theme-dark .brand-mark {
   color: var(--ink);
 }
 
+body.theme-dark .network-picker select,
 body.theme-dark .wallet-connect,
+body.theme-dark .wallet-disconnect,
 body.theme-dark .theme-toggle {
   background: linear-gradient(180deg, rgba(22, 34, 46, 0.96), rgba(14, 23, 31, 0.96));
   border-color: rgba(140, 235, 221, 0.12);
   color: var(--ink);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.network-picker select {
+  appearance: none;
+  min-width: 148px;
+  padding-right: 34px;
 }
 
 .wallet-connect {
@@ -339,6 +349,11 @@ body.theme-dark .theme-toggle {
   color: #fff;
   font-weight: 700;
   box-shadow: 0 14px 26px rgba(14, 143, 135, 0.22);
+}
+
+.wallet-disconnect {
+  background: rgba(255, 255, 255, 0.46);
+  color: var(--ink);
 }
 
 .wallet-badge {

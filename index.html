@@ -35,7 +35,14 @@
       </a>
 
       <div class="topbar-copy">
+        <label class="network-picker" aria-label="Select network">
+          <select id="networkSelect">
+            <option value="0x14a34" selected>Base Sepolia</option>
+            <option value="0x1">Ethereum</option>
+          </select>
+        </label>
         <button class="wallet-connect" id="walletConnectButton" type="button">Connect wallet</button>
+        <button class="wallet-disconnect" id="walletDisconnectButton" type="button" hidden>Disconnect</button>
         <span class="wallet-badge" id="walletBadge" hidden>Wallet not connected</span>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">Dark</button>
         <span class="status-dot"></span>
