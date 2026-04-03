@@ -406,6 +406,7 @@ function makeLogoTransparent() {
 
     if (minX >= maxX || minY >= maxY) {
       image.src = canvas.toDataURL('image/png');
+      image.classList.add('is-ready');
       return;
     }
 
@@ -422,10 +423,14 @@ function makeLogoTransparent() {
     out.height = cropH;
     outCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
     image.src = out.toDataURL('image/png');
+    image.classList.add('is-ready');
   };
 
   if (image.complete) process();
-  else image.addEventListener('load', process, { once: true });
+  else {
+    image.addEventListener('load', process, { once: true });
+    image.addEventListener('error', () => image.classList.add('is-ready'), { once: true });
+  }
 }
 
 function applyFormState(formData) {
