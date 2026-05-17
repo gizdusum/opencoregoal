@@ -13,7 +13,7 @@
       "timestamp": "2026-12-31T23:59:59Z"
     }
   ],
-  "executable": "/Users/denizalagoz/Documents/New project/openwallet-goal/ows-profit-vault-policy.js",
+  "executable": "/Users/gizdusum/Documents/New project/openwallet-goal/ows-profit-vault-policy.js",
   "action": "deny",
   "config": {
     "stableAsset": "USDC",
